@@ -1,0 +1,81 @@
+/* =====================================================================
+   MAHENDRAN — ANIMATIONS
+   Keyframes + scroll-triggered motion classes.
+===================================================================== */
+
+@media (prefers-reduced-motion: reduce){
+  .reveal, .word-reveal span, .line-reveal span, [data-count]{ opacity:1 !important; transform:none !important; }
+}
+
+/* ---- Generic reveal-on-scroll ---- */
+.reveal{
+  opacity:0; transform:translateY(28px);
+  transition:opacity .8s var(--ease-out), transform .8s var(--ease-out);
+}
+.reveal.is-visible{ opacity:1; transform:translateY(0); }
+.reveal-delay-1{ transition-delay:.08s; }
+.reveal-delay-2{ transition-delay:.16s; }
+.reveal-delay-3{ transition-delay:.24s; }
+.reveal-delay-4{ transition-delay:.32s; }
+
+/* ---- Word / line reveal for headings ---- */
+.word-reveal{ overflow:hidden; display:inline-block; }
+.word-reveal span{
+  display:inline-block; transform:translateY(110%); opacity:0;
+  transition:transform .8s var(--ease-out), opacity .8s var(--ease-out);
+}
+.word-reveal.is-visible span{ transform:translateY(0); opacity:1; }
+
+/* ---- Image mask reveal ---- */
+.mask-reveal{ position:relative; overflow:hidden; }
+.mask-reveal::after{
+  content:''; position:absolute; inset:0; background:var(--color-bg);
+  transform-origin:top; transform:scaleY(1);
+  transition:transform .9s var(--ease-out);
+}
+.mask-reveal.is-visible::after{ transform:scaleY(0); }
+.mask-reveal img, .mask-reveal svg{ transform:scale(1.08); transition:transform 1.1s var(--ease-out); }
+.mask-reveal.is-visible img, .mask-reveal.is-visible svg{ transform:scale(1); }
+
+/* ---- Number counters ---- */
+[data-count]{ font-variant-numeric:tabular-nums; }
+
+/* ---- Hero scroll indicator ---- */
+.hero-scroll{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+.hero-scroll .label{ font-family:var(--ff-mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--color-text-dim); }
+.hero-scroll .line{ width:1px; height:36px; background:var(--color-border-strong); position:relative; overflow:hidden; }
+.hero-scroll .line::after{ content:''; position:absolute; top:-100%; left:0; right:0; height:100%; background:var(--color-accent); animation:scrollDrip 2.2s ease-in-out infinite; }
+@keyframes scrollDrip{ 0%{ top:-100%; } 60%{ top:100%; } 100%{ top:100%; } }
+
+/* ---- Fade helpers ---- */
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+@keyframes fadeScale{ from{ opacity:0; transform:scale(.94); } to{ opacity:1; transform:scale(1); } }
+.fade-up{ opacity:0; animation:fadeUp .9s var(--ease-out) forwards; }
+.fade-scale{ opacity:0; animation:fadeScale 1.1s var(--ease-out) forwards; }
+
+/* ---- Magnetic button base ---- */
+.magnetic{ transition:transform .2s var(--ease-out); }
+
+/* ---- Custom cursor (desktop only) ---- */
+.cursor-dot{
+  position:fixed; top:0; left:0; width:8px; height:8px; border-radius:50%;
+  background:var(--color-accent); pointer-events:none; z-index:var(--z-cursor);
+  transform:translate(-50%,-50%); opacity:0; transition:opacity .25s ease, width .25s ease, height .25s ease;
+  mix-blend-mode:difference;
+}
+.cursor-dot.active{ opacity:1; }
+.cursor-dot.grow{ width:56px; height:56px; }
+
+/* ---- Process step connector pulse ---- */
+.process-step .p-num{ position:relative; }
+.process-step:hover .p-num::after{
+  content:''; position:absolute; left:0; bottom:-8px; width:100%; height:1px; background:var(--color-accent);
+  animation:pnumline .5s var(--ease-out) forwards;
+}
+@keyframes pnumline{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+
+/* ---- Accordion (case study / FAQ style) ---- */
+.accordion-panel{ max-height:0; overflow:hidden; transition:max-height .5s var(--ease-out); }
+.accordion-item.open .accordion-panel{ max-height:600px; }
+.accordion-icon{ transition:transform .35s var(--ease-out); }
+.accordion-item.open .accordion-icon{ transform:rotate(45deg); }

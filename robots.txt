@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: [Add production domain]/sitemap.xml
