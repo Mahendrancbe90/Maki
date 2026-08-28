@@ -97,6 +97,13 @@
   .marquee-track{ gap:32px; }
   .marquee-track span{ font-size:12px; gap:32px; }
   .marquee-track span::after{ margin-left:32px; }
+
+  /* Footer: more generous side padding than the shared .wrap gutter,
+     so footer content doesn't feel flush against the edges.
+     .footer-bottom is always nested inside .footer-main, so padding
+     the parent alone is sufficient and keeps footer-bottom's content
+     aligned with .footer-grid above it. */
+  .footer-main{ padding-left:28px; padding-right:28px; }
 }
 
 /* ---- ≤430px ---- */
@@ -104,14 +111,14 @@
   .hero-left-bottom h1{ font-size:34px; }
   .metrics-band{ grid-template-columns:1fr; }
   .case-meta-row{ grid-template-columns:1fr; }
+  .footer-main{ padding-left:24px; padding-right:24px; }
 }
 
 /* ---- ≤390px ---- */
 @media (max-width:390px){
-  .nav-inner{ gap:16px; }
-  .nav-logo{ font-size:13px; }
-  .nav-logo .nav-logo-sub{ display:none; }
-  .work-row .w-title{ font-size:20px; }
+  .nav-inner{ gap:12px; }
+  .nav-logo-img{ height:20px; }
+  .lw-title{ font-size:18px; }
 }
 
 /* ---- ≤360px: final safety net against overflow ---- */
@@ -121,4 +128,7 @@
   .hero-left{ padding-left:16px; padding-right:16px; }
   .hero-left-bottom h1{ font-size:30px; }
   .btn{ padding:14px 20px; }
+  .mobile-menu{ padding-left:16px; padding-right:16px; }
+  .footer-main{ padding-left:22px; padding-right:22px; }
+  .process-card{ padding:20px; }
 }

@@ -29,19 +29,38 @@
         nav.classList.toggle('scrolled', window.scrollY > 40);
       }, { passive:true });
     }
+
+    let lockedScrollY = 0;
+    function lockBodyScroll(){
+      lockedScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+    }
+    function unlockBodyScroll(){
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      window.scrollTo(0, lockedScrollY);
+    }
+
     if (toggle && mobileMenu){
       toggle.addEventListener('click', () => {
         const isOpen = mobileMenu.classList.toggle('open');
         toggle.classList.toggle('open', isOpen);
         toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        document.body.style.overflow = isOpen ? 'hidden' : '';
+        if (isOpen) lockBodyScroll(); else unlockBodyScroll();
       });
       mobileMenu.querySelectorAll('a').forEach(a => {
         a.addEventListener('click', () => {
           mobileMenu.classList.remove('open');
           toggle.classList.remove('open');
           toggle.setAttribute('aria-expanded', 'false');
-          document.body.style.overflow = '';
+          unlockBodyScroll();
         });
       });
       // close on escape
@@ -49,6 +68,7 @@
         if (e.key === 'Escape' && mobileMenu.classList.contains('open')){
           mobileMenu.classList.remove('open');
           toggle.classList.remove('open');
+          unlockBodyScroll();
           toggle.focus();
         }
       });
@@ -240,19 +260,46 @@
     });
   }
 
-  /* ---- Hero video: respect prefers-reduced-motion ---- */
+  /* ---- Hero video: custom minimal play/pause control ----
+     Video autoplays muted/looped by default with no visible control,
+     matching a clean full-bleed background treatment. The small custom
+     button only appears if playback is actually paused — either because
+     prefers-reduced-motion is on, or because the browser blocked
+     autoplay — so we never fall back to the browser's oversized native
+     video controls. */
   function initHeroVideo(){
     const video = document.querySelector('.hero-video');
-    if (!video) return;
+    const toggle = document.getElementById('heroVideoToggle');
+    if (!video || !toggle) return;
+
+    function showToggle(){ toggle.classList.add('is-visible'); }
+    function syncState(){
+      const playing = !video.paused;
+      toggle.classList.toggle('is-playing', playing);
+      toggle.setAttribute('aria-label', playing ? 'Pause video' : 'Play video');
+    }
+
     if (reduceMotion){
-      const wrapper = video.closest('.hero-media');
-      if (wrapper) wrapper.removeAttribute('aria-hidden');
       video.removeAttribute('autoplay');
       video.removeAttribute('loop');
       video.pause();
-      video.setAttribute('controls', '');
-      video.setAttribute('aria-label', 'Introduction video of Mahendran');
+      showToggle();
+    } else {
+      // If autoplay is blocked by the browser, fall back to showing our own control.
+      const playPromise = video.play();
+      if (playPromise !== undefined){
+        playPromise.catch(() => { showToggle(); syncState(); });
+      }
     }
+
+    video.addEventListener('pause', () => { showToggle(); syncState(); });
+    video.addEventListener('play', syncState);
+
+    toggle.addEventListener('click', () => {
+      if (video.paused) video.play(); else video.pause();
+    });
+
+    syncState();
   }
 
   /* ---- Process cascade: smooth drag-to-scroll + vertical-wheel-to-horizontal ---- */
