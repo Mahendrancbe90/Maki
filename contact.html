@@ -104,6 +104,12 @@
 
       <div class="contact-form-wrap reveal reveal-delay-1">
         <form id="contactForm" novalidate>
+          <!-- Honeypot: hidden from real visitors, bots tend to fill every field they find. -->
+          <div style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;" aria-hidden="true">
+            <label for="fieldHoneypot">Leave this field empty</label>
+            <input type="text" id="fieldHoneypot" name="hp_check" tabindex="-1" autocomplete="off">
+          </div>
+
           <div class="form-group">
             <label class="form-label" for="fieldName">Name *</label>
             <input class="form-input" type="text" id="fieldName" name="name" autocomplete="name" required>
@@ -123,27 +129,32 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="fieldProjectType">Project Type</label>
-              <select class="form-select" id="fieldProjectType" name="projectType">
+              <select class="form-select" id="fieldProjectType" name="projectType" required>
                 <option value="">Select one</option>
-                <option value="Product Design (SaaS)">Product Design (SaaS)</option>
-                <option value="Enterprise Application">Enterprise Application</option>
+                <option value="Website Design">Website Design</option>
+                <option value="Web Application">Web Application</option>
                 <option value="Mobile App">Mobile App</option>
-                <option value="Design System">Design System</option>
-                <option value="UX Audit / Consulting">UX Audit / Consulting</option>
+                <option value="UI/UX Design">UI/UX Design</option>
+                <option value="Product Design">Product Design</option>
+                <option value="Branding">Branding</option>
                 <option value="Other">Other</option>
               </select>
+              <span class="form-error" role="alert"></span>
             </div>
           </div>
 
-          <!-- <div class="form-group">
+          <div class="form-group">
             <label class="form-label" for="fieldBudget">Budget Range</label>
             <select class="form-select" id="fieldBudget" name="budget">
               <option value="">Select a range</option>
-              <option value="[Add budget tier]">[Add budget tier]</option>
-              <option value="[Add budget tier]">[Add budget tier]</option>
+              <option value="Below ₹50,000">Below ₹50,000</option>
+              <option value="₹50,000 – ₹1,00,000">₹50,000 – ₹1,00,000</option>
+              <option value="₹1,00,000 – ₹3,00,000">₹1,00,000 – ₹3,00,000</option>
+              <option value="₹3,00,000 – ₹5,00,000">₹3,00,000 – ₹5,00,000</option>
+              <option value="₹5,00,000+">₹5,00,000+</option>
               <option value="Not sure yet">Not sure yet</option>
             </select>
-          </div> -->
+          </div>
 
           <div class="form-group">
             <label class="form-label" for="fieldMessage">Project Details *</label>
@@ -151,9 +162,14 @@
             <span class="form-error" role="alert"></span>
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width:100%;">Send Message</button>
+          <div class="form-group" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">
+            <label for="fieldWebsite">Leave this field empty</label>
+            <input class="form-input" type="text" id="fieldWebsite" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="contactSubmit" style="width:100%;">Send Message</button>
           <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
-          <p class="case-placeholder" style="margin-top:16px;">No backend is connected — submitting opens your email client with this message pre-filled, so nothing is silently lost.</p>
+          <p class="case-placeholder" style="margin-top:16px;">Your enquiry is sent directly and privately — it isn't stored anywhere else.</p>
         </form>
       </div>
 

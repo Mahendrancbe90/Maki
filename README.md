@@ -154,6 +154,50 @@ git push -u origin main
 
 ---
 
+## 9. Contact Form Backend (Vercel + Resend)
+
+The contact form on `contact.html` submits to a real serverless function — `api/contact.js` — which is only functional when deployed on **Vercel** (the function uses Vercel's Node.js serverless runtime; it will not run as-is on Cloudflare Pages or a plain static host, since those don't execute this file the same way). If you ever move hosting off Vercel, this function needs to be ported to that platform's equivalent (e.g. a Cloudflare Pages Function).
+
+**How an enquiry reaches you:**
+
+```
+Contact form (contact.html)
+  → fetch('/api/contact')            [assets/js/main.js]
+  → Vercel serverless function       [api/contact.js]
+  → Resend API (https://resend.com)
+  → mahendran.cbe90@gmail.com
+```
+
+**Required environment variables** (set in Vercel → Project → Settings → Environment Variables — never commit real values):
+
+| Variable | Purpose |
+|---|---|
+| `RESEND_API_KEY` | Your Resend API key (Resend dashboard → API Keys) |
+| `CONTACT_TO_EMAIL` | Delivery address — `mahendran.cbe90@gmail.com` |
+| `CONTACT_FROM_EMAIL` | The verified "from" address Resend sends as |
+
+A `.env.example` file documents the same variables for local reference — copy it to `.env.local` for `vercel dev`, but set the real values in Vercel's dashboard for production, not in any committed file.
+
+**Resend domain verification:** Resend requires the `from` address's domain to be verified (Resend dashboard → Domains → Add Domain → add the DNS records it gives you) before it will deliver to arbitrary recipients. Until that's done, use Resend's shared sandbox address `onboarding@resend.dev` as `CONTACT_FROM_EMAIL` to test the flow end-to-end — it works immediately with no DNS setup, but is meant for testing, not long-term production use.
+
+**Deploying:**
+
+1. Push this repo to GitHub (or your Git provider) and import it on [vercel.com](https://vercel.com) — Vercel auto-detects the `api/` folder as serverless functions and serves everything else as static files; no build command is needed.
+2. Add the three environment variables above in the Vercel dashboard.
+3. Redeploy (or trigger a deploy by pushing a commit) so the function picks up the new environment variables.
+
+**Testing the live form:**
+
+1. Open the deployed `/contact.html` page and submit the form with valid test data.
+2. Confirm the button shows a "Sending…" state, then either the success message ("Thank you! Your enquiry has been submitted successfully.") or the error message ("Something went wrong. Please try again.") appears.
+3. Check the inbox at `CONTACT_TO_EMAIL` for the enquiry — subject should read `New Project Enquiry – [Project Type]`.
+4. Try submitting with an invalid email or a Project Details value under 10 characters — the existing inline field errors should appear and the request should never reach the server.
+5. To confirm error handling doesn't lose data: temporarily remove/misname an environment variable in Vercel, redeploy, submit the form, and confirm the error message appears while your typed values remain in the fields (the form only clears on confirmed success).
+
+**Built-in spam/abuse protection:** a hidden honeypot field (`website`) is invisible to sighted users and skipped by keyboard navigation and screen readers, but a bot that blindly fills every field will populate it — the backend silently accepts the request without sending an email if that field is non-empty. For higher-volume protection (e.g. rate-limiting by IP), consider adding [Vercel's Attack Challenge Mode](https://vercel.com/docs/security/attack-challenge-mode) or a Vercel KV-backed rate limiter as a future enhancement — neither is required for the form to work correctly today.
+
+---
+
 ## Git Workflow
 
 ```

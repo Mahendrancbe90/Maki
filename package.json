@@ -1,0 +1,10 @@
+{
+  "name": "mahendran-portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static portfolio site with a Vercel serverless function for the contact form.",
+  "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  }
+}

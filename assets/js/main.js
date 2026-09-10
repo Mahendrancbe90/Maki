@@ -200,6 +200,9 @@
     const form = document.getElementById('contactForm');
     if (!form) return;
     const status = document.getElementById('formStatus');
+    const submitBtn = document.getElementById('contactSubmit');
+    const submitLabel = submitBtn ? submitBtn.textContent : 'Send Message';
+    let isSubmitting = false;
 
     function setInvalid(group, message){
       group.classList.add('invalid');
@@ -210,23 +213,30 @@
       group.classList.remove('invalid');
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (isSubmitting) return; // prevent duplicate submissions
+
       let valid = true;
 
       const name = form.querySelector('#fieldName');
       const email = form.querySelector('#fieldEmail');
+      const projectType = form.querySelector('#fieldProjectType');
       const message = form.querySelector('#fieldMessage');
 
-      [name, email, message].forEach(f => f && clearInvalid(f.closest('.form-group')));
+      [name, email, projectType, message].forEach(f => f && clearInvalid(f.closest('.form-group')));
 
-      if (!name.value.trim()){
-        setInvalid(name.closest('.form-group'), 'Please enter your name.');
+      if (!name.value.trim() || name.value.trim().length < 2){
+        setInvalid(name.closest('.form-group'), 'Please enter your name (2+ characters).');
         valid = false;
       }
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email.value.trim())){
         setInvalid(email.closest('.form-group'), 'Please enter a valid email address.');
+        valid = false;
+      }
+      if (!projectType.value){
+        setInvalid(projectType.closest('.form-group'), 'Please select a project type.');
         valid = false;
       }
       if (!message.value.trim() || message.value.trim().length < 10){
@@ -239,24 +249,42 @@
         return;
       }
 
-      // No backend is wired up — build a mailto fallback with the form content.
-      const company = form.querySelector('#fieldCompany')?.value.trim() || 'Not specified';
-      const projectType = form.querySelector('#fieldProjectType')?.value || 'Not specified';
-      const budget = form.querySelector('#fieldBudget')?.value || 'Not specified';
+      const payload = {
+        name: name.value.trim(),
+        email: email.value.trim(),
+        company: form.querySelector('#fieldCompany')?.value.trim() || '',
+        projectType: projectType.value,
+        budget: form.querySelector('#fieldBudget')?.value || '',
+        message: message.value.trim(),
+        website: form.querySelector('#fieldWebsite')?.value || ''
+      };
 
-      const subject = encodeURIComponent(`Project inquiry from ${name.value.trim()}`);
-      const body = encodeURIComponent(
-        `Name: ${name.value.trim()}\nEmail: ${email.value.trim()}\nCompany: ${company}\nProject type: ${projectType}\nBudget range: ${budget}\n\nMessage:\n${message.value.trim()}`
-      );
-      const mailto = `mailto:hello@mahendran.design?subject=${subject}&body=${body}`;
+      isSubmitting = true;
+      if (submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Sending…'; }
+      if (status){ status.textContent = ''; status.className = 'form-status'; }
 
-      window.location.href = mailto;
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Request failed');
 
-      if (status){
-        status.textContent = 'Your email client should now be open with this message pre-filled — send it from there to reach me directly. [Demo mode: no backend is connected yet.]';
-        status.className = 'form-status success';
+        if (status){
+          status.textContent = 'Thank you! Your enquiry has been submitted successfully.';
+          status.className = 'form-status success';
+        }
+        form.reset(); // only clear on confirmed success — entered data is preserved on any error
+      } catch (err) {
+        if (status){
+          status.textContent = 'Something went wrong. Please try again.';
+          status.className = 'form-status error';
+        }
+      } finally {
+        isSubmitting = false;
+        if (submitBtn){ submitBtn.disabled = false; submitBtn.textContent = submitLabel; }
       }
-      form.reset();
     });
   }
 
